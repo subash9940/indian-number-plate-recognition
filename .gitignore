@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+.ipynb_checkpoints/
+archive/
+newdata/
+runs/
+crops/
+videos/
+*.mp4
+*.db
+*.pt
+trocr_plate/
