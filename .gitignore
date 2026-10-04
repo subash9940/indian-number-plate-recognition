@@ -10,3 +10,4 @@ videos/
 *.db
 *.pt
 trocr_plate/
+*.csv

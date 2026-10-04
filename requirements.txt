@@ -1,0 +1,10 @@
+torch
+torchvision
+ultralytics
+transformers
+sentencepiece
+protobuf
+huggingface_hub
+opencv-python
+pandas
+pillow
