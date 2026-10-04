@@ -105,7 +105,18 @@ def get_weights(args):
             f"Could not download weights from '{args.hf_repo}': {e}\n"
             "If the repo is private, set HF_TOKEN or run `hf auth login` first.")
 
-
+def merge_near_duplicates(rows, best_crop, max_diff=2):
+    """Collapse low-vote reads that differ by <= max_diff characters from a better-supported read."""
+    rows = sorted(rows, key=lambda r: (-r["votes"], -best_crop[r["track_id"]][0]))
+    kept = []
+    for r in rows:
+        if r["votes"] <= 2 and any(
+                len(r["plate_text"]) == len(k["plate_text"]) and
+                sum(a != b for a, b in zip(r["plate_text"], k["plate_text"])) <= max_diff
+                for k in kept):
+            continue
+        kept.append(r)
+    return kept
 # ---------- main pipeline ----------
 def process_video(args, yolo, reader):
     cap = cv2.VideoCapture(args.video)
@@ -166,7 +177,7 @@ def process_video(args, yolo, reader):
             cv2.imwrite(os.path.join(args.save_crops, f"{stem}_track{tid}.jpg"), best_crop[tid][1])
         rows.append({"track_id": tid, "plate_text": text, "valid_format": int(is_valid(text)),
                      "votes": n, "confidence": round(conf, 2)})
-
+    rows = merge_near_duplicates(rows, best_crop)
     print(f"{frame_no} frames processed, {len(rows)} vehicles found -> {out_path}")
     return pd.DataFrame(rows)
 
